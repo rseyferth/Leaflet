@@ -196,7 +196,7 @@ function _setOpacityIE(el, value) {
 // that is a valid style name for an element. If no such name is found,
 // it returns false. Useful for vendor-prefixed styles like `transform`.
 export function testProp(props) {
-	var style = document.documentElement.style;
+	var style = typeof document === 'undefined' ? {} : document.documentElement.style;
 
 	for (var i = 0; i < props.length; i++) {
 		if (props[i] in style) {
@@ -258,30 +258,32 @@ export function getPosition(el) {
 export var disableTextSelection;
 export var enableTextSelection;
 var _userSelect;
-if ('onselectstart' in document) {
-	disableTextSelection = function () {
-		DomEvent.on(window, 'selectstart', DomEvent.preventDefault);
-	};
-	enableTextSelection = function () {
-		DomEvent.off(window, 'selectstart', DomEvent.preventDefault);
-	};
-} else {
-	var userSelectProperty = testProp(
-		['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+if (typeof document !== 'undefined') {
+	if ('onselectstart' in document) {
+		disableTextSelection = function () {
+			DomEvent.on(window, 'selectstart', DomEvent.preventDefault);
+		};
+		enableTextSelection = function () {
+			DomEvent.off(window, 'selectstart', DomEvent.preventDefault);
+		};
+	} else {
+		var userSelectProperty = testProp(
+			['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
 
-	disableTextSelection = function () {
-		if (userSelectProperty) {
-			var style = document.documentElement.style;
-			_userSelect = style[userSelectProperty];
-			style[userSelectProperty] = 'none';
-		}
-	};
-	enableTextSelection = function () {
-		if (userSelectProperty) {
-			document.documentElement.style[userSelectProperty] = _userSelect;
-			_userSelect = undefined;
-		}
-	};
+		disableTextSelection = function () {
+			if (userSelectProperty) {
+				var style = document.documentElement.style;
+				_userSelect = style[userSelectProperty];
+				style[userSelectProperty] = 'none';
+			}
+		};
+		enableTextSelection = function () {
+			if (userSelectProperty) {
+				document.documentElement.style[userSelectProperty] = _userSelect;
+				_userSelect = undefined;
+			}
+		};
+	}
 }
 
 // @function disableImageDrag()

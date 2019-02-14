@@ -1,3 +1,6 @@
+// No window (SSR)?
+var renderOnServer = typeof window === 'undefined';
+
 /*
  * @namespace Util
  *
@@ -200,7 +203,7 @@ export var emptyImageUrl = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAA
 // inspired by http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 
 function getPrefixed(name) {
-	return window['webkit' + name] || window['moz' + name] || window['ms' + name];
+	return renderOnServer ? null : window['webkit' + name] || window['moz' + name] || window['ms' + name];
 }
 
 var lastTime = 0;
@@ -214,8 +217,9 @@ function timeoutDefer(fn) {
 	return window.setTimeout(fn, timeToCall);
 }
 
-export var requestFn = window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
-export var cancelFn = window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
+function noop() {}
+export var requestFn = renderOnServer ? noop : window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
+export var cancelFn = renderOnServer ? noop : window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
 		getPrefixed('CancelRequestAnimationFrame') || function (id) { window.clearTimeout(id); };
 
 // @function requestAnimFrame(fn: Function, context?: Object, immediate?: Boolean): Number

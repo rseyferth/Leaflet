@@ -1,9 +1,12 @@
 /* @preserve
- * Leaflet 1.4.0, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.4.0+master-v1.4.0.3337f36, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2018 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
-var version = "1.4.0";
+var version = "1.4.0+master-v1.4.0.3337f36d";
+
+// No window (SSR)?
+var renderOnServer = typeof window === 'undefined';
 
 /*
  * @namespace Util
@@ -207,7 +210,7 @@ var emptyImageUrl = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
 // inspired by http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 
 function getPrefixed(name) {
-	return window['webkit' + name] || window['moz' + name] || window['ms' + name];
+	return renderOnServer ? null : window['webkit' + name] || window['moz' + name] || window['ms' + name];
 }
 
 var lastTime = 0;
@@ -221,8 +224,9 @@ function timeoutDefer(fn) {
 	return window.setTimeout(fn, timeToCall);
 }
 
-var requestFn = window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
-var cancelFn = window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
+function noop() {}
+var requestFn = renderOnServer ? noop : window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
+var cancelFn = renderOnServer ? noop : window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
 		getPrefixed('CancelRequestAnimationFrame') || function (id) { window.clearTimeout(id); };
 
 // @function requestAnimFrame(fn: Function, context?: Object, immediate?: Boolean): Number
@@ -1806,6 +1810,9 @@ function pointsToPath(rings, closed) {
 	return str || 'M0 0';
 }
 
+// No window (SSR)?
+var renderOnServer$1 = typeof window === 'undefined';
+
 /*
  * @namespace Browser
  * @aka L.Browser
@@ -1821,16 +1828,16 @@ function pointsToPath(rings, closed) {
  * ```
  */
 
-var style$1 = document.documentElement.style;
+var style$1 = renderOnServer$1 ? {} : document.documentElement.style;
 
 // @property ie: Boolean; `true` for all Internet Explorer versions (not Edge).
-var ie = 'ActiveXObject' in window;
+var ie = !renderOnServer$1 && 'ActiveXObject' in window;
 
 // @property ielt9: Boolean; `true` for Internet Explorer versions less than 9.
 var ielt9 = ie && !document.addEventListener;
 
 // @property edge: Boolean; `true` for the Edge web browser.
-var edge = 'msLaunchUri' in navigator && !('documentMode' in document);
+var edge = !renderOnServer$1 && 'msLaunchUri' in navigator && !('documentMode' in document);
 
 // @property webkit: Boolean;
 // `true` for webkit-based browsers like Chrome and Safari (including mobile versions).
@@ -1844,12 +1851,12 @@ var android = userAgentContains('android');
 var android23 = userAgentContains('android 2') || userAgentContains('android 3');
 
 /* See https://stackoverflow.com/a/17961266 for details on detecting stock Android */
-var webkitVer = parseInt(/WebKit\/([0-9]+)|$/.exec(navigator.userAgent)[1], 10); // also matches AppleWebKit
+var webkitVer = !renderOnServer$1 && parseInt(/WebKit\/([0-9]+)|$/.exec(navigator.userAgent)[1], 10); // also matches AppleWebKit
 // @property androidStock: Boolean; `true` for the Android stock browser (i.e. not Chrome)
 var androidStock = android && userAgentContains('Google') && webkitVer < 537 && !('AudioNode' in window);
 
 // @property opera: Boolean; `true` for the Opera browser
-var opera = !!window.opera;
+var opera = !renderOnServer$1 && !!window.opera;
 
 // @property chrome: Boolean; `true` for the Chrome browser.
 var chrome = userAgentContains('chrome');
@@ -1867,23 +1874,23 @@ var phantom = userAgentContains('phantom');
 var opera12 = 'OTransition' in style$1;
 
 // @property win: Boolean; `true` when the browser is running in a Windows platform
-var win = navigator.platform.indexOf('Win') === 0;
+var win = !renderOnServer$1 && navigator.platform.indexOf('Win') === 0;
 
 // @property ie3d: Boolean; `true` for all Internet Explorer versions supporting CSS transforms.
 var ie3d = ie && ('transition' in style$1);
 
 // @property webkit3d: Boolean; `true` for webkit-based browsers supporting CSS transforms.
-var webkit3d = ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23;
+var webkit3d = !renderOnServer$1 && ('WebKitCSSMatrix' in window) && ('m11' in new window.WebKitCSSMatrix()) && !android23;
 
 // @property gecko3d: Boolean; `true` for gecko-based browsers supporting CSS transforms.
 var gecko3d = 'MozPerspective' in style$1;
 
 // @property any3d: Boolean
 // `true` for all browsers supporting CSS transforms.
-var any3d = !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d) && !opera12 && !phantom;
+var any3d = !renderOnServer$1 && !window.L_DISABLE_3D && (ie3d || webkit3d || gecko3d) && !opera12 && !phantom;
 
 // @property mobile: Boolean; `true` for all browsers running in a mobile device.
-var mobile = typeof orientation !== 'undefined' || userAgentContains('mobile');
+var mobile = !renderOnServer$1 && typeof orientation !== 'undefined' || userAgentContains('mobile');
 
 // @property mobileWebkit: Boolean; `true` for all webkit-based browsers in a mobile device.
 var mobileWebkit = mobile && webkit;
@@ -1894,18 +1901,18 @@ var mobileWebkit3d = mobile && webkit3d;
 
 // @property msPointer: Boolean
 // `true` for browsers implementing the Microsoft touch events model (notably IE10).
-var msPointer = !window.PointerEvent && window.MSPointerEvent;
+var msPointer = !renderOnServer$1 && !window.PointerEvent && window.MSPointerEvent;
 
 // @property pointer: Boolean
 // `true` for all browsers supporting [pointer events](https://msdn.microsoft.com/en-us/library/dn433244%28v=vs.85%29.aspx).
-var pointer = !!(window.PointerEvent || msPointer);
+var pointer = !renderOnServer$1 && !!(window.PointerEvent || msPointer);
 
 // @property touch: Boolean
 // `true` for all browsers supporting [touch events](https://developer.mozilla.org/docs/Web/API/Touch_events).
 // This does not necessarily mean that the browser is running in a computer with
 // a touchscreen, it only means that the browser is capable of understanding
 // touch events.
-var touch = !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window ||
+var touch = !renderOnServer$1 && !window.L_NO_TOUCH && (pointer || 'ontouchstart' in window ||
 		(window.DocumentTouch && document instanceof window.DocumentTouch));
 
 // @property mobileOpera: Boolean; `true` for the Opera browser in a mobile device.
@@ -1917,18 +1924,18 @@ var mobileGecko = mobile && gecko;
 
 // @property retina: Boolean
 // `true` for browsers on a high-resolution "retina" screen or on any screen when browser's display zoom is more than 100%.
-var retina = (window.devicePixelRatio || (window.screen.deviceXDPI / window.screen.logicalXDPI)) > 1;
+var retina = !renderOnServer$1 && (window.devicePixelRatio || (window.screen.deviceXDPI / window.screen.logicalXDPI)) > 1;
 
 
 // @property canvas: Boolean
 // `true` when the browser supports [`<canvas>`](https://developer.mozilla.org/docs/Web/API/Canvas_API).
 var canvas = (function () {
-	return !!document.createElement('canvas').getContext;
+	return !renderOnServer$1 && !!document.createElement('canvas').getContext;
 }());
 
 // @property svg: Boolean
 // `true` when the browser supports [SVG](https://developer.mozilla.org/docs/Web/SVG).
-var svg = !!(document.createElementNS && svgCreate('svg').createSVGRect);
+var svg = !renderOnServer$1 && !!(document.createElementNS && svgCreate('svg').createSVGRect);
 
 // @property vml: Boolean
 // `true` if the browser supports [VML](https://en.wikipedia.org/wiki/Vector_Markup_Language).
@@ -1949,7 +1956,7 @@ var vml = !svg && (function () {
 
 
 function userAgentContains(str) {
-	return navigator.userAgent.toLowerCase().indexOf(str) >= 0;
+	return !renderOnServer$1 && navigator.userAgent.toLowerCase().indexOf(str) >= 0;
 }
 
 
@@ -2393,7 +2400,7 @@ function _setOpacityIE(el, value) {
 // that is a valid style name for an element. If no such name is found,
 // it returns false. Useful for vendor-prefixed styles like `transform`.
 function testProp(props) {
-	var style = document.documentElement.style;
+	var style = typeof document === 'undefined' ? {} : document.documentElement.style;
 
 	for (var i = 0; i < props.length; i++) {
 		if (props[i] in style) {
@@ -2455,30 +2462,32 @@ function getPosition(el) {
 var disableTextSelection;
 var enableTextSelection;
 var _userSelect;
-if ('onselectstart' in document) {
-	disableTextSelection = function () {
-		on(window, 'selectstart', preventDefault);
-	};
-	enableTextSelection = function () {
-		off(window, 'selectstart', preventDefault);
-	};
-} else {
-	var userSelectProperty = testProp(
-		['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+if (typeof document !== 'undefined') {
+	if ('onselectstart' in document) {
+		disableTextSelection = function () {
+			on(window, 'selectstart', preventDefault);
+		};
+		enableTextSelection = function () {
+			off(window, 'selectstart', preventDefault);
+		};
+	} else {
+		var userSelectProperty = testProp(
+			['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
 
-	disableTextSelection = function () {
-		if (userSelectProperty) {
-			var style = document.documentElement.style;
-			_userSelect = style[userSelectProperty];
-			style[userSelectProperty] = 'none';
-		}
-	};
-	enableTextSelection = function () {
-		if (userSelectProperty) {
-			document.documentElement.style[userSelectProperty] = _userSelect;
-			_userSelect = undefined;
-		}
-	};
+		disableTextSelection = function () {
+			if (userSelectProperty) {
+				var style = document.documentElement.style;
+				_userSelect = style[userSelectProperty];
+				style[userSelectProperty] = 'none';
+			}
+		};
+		enableTextSelection = function () {
+			if (userSelectProperty) {
+				document.documentElement.style[userSelectProperty] = _userSelect;
+				_userSelect = undefined;
+			}
+		};
+	}
 }
 
 // @function disableImageDrag()
