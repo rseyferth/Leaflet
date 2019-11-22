@@ -5,14 +5,13 @@ Contributing to Leaflet
  2. [Reporting Bugs](#reporting-bugs)
  3. [Contributing Code](#contributing-code)
  4. [Running the Tests](#running-the-tests)
- 5. [Code Coverage](#code-coverage)
  6. [Improving Documentation](#improving-documentation)
  7. [Code of Conduct](#code-of-conduct)
  8. [Thank You](#thank-you)
 
 ## Getting Involved
 
-Third-party patches are absolutely essential on our quest to create the best mapping library that will ever exist.
+Third-party patches are absolutely essential in our quest to create the best mapping library that will ever exist.
 However, they're not the only way to get involved with Leaflet development.
 You can help the project tremendously by discovering and [reporting bugs](#reporting-bugs);
 [improving documentation](#improving-documentation);
@@ -137,17 +136,6 @@ npm test -- -- --browsers Firefox,Chrome,Safari,IE
 
 To run the tests in a browser manually, open `spec/index.html`.
 
-## Code Coverage
-
-To generate a detailed report about test coverage (which helps tremendously when working on test improvements), run:
-
-```
-npm test -- --cov
-```
-
-After that, open `coverage/<environment>/index.html` in a browser to see the report.
-From there you can click through folders/files to get details on their individual coverage.
-
 ## Improving Documentation
 
 The code of the live Leaflet website that contains all documentation and examples is located in the `docs/` directory of the `master` branch
@@ -162,7 +150,7 @@ Once it gets merged, the changes will immediately appear on the website.
 
 If you need to make edits in a local repository to see how it looks in the process, do the following:
 
- 1. [Install Ruby](http://www.ruby-lang.org/en/) if don't have it yet.
+ 1. [Install Ruby](http://www.ruby-lang.org/en/) if you don't have it yet.
  2. Run `gem install jekyll`.
  3. Enter the directory where you cloned the Leaflet repository
  4. Run `bundle install`
