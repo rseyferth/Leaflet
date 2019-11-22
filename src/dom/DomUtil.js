@@ -1,7 +1,9 @@
 import * as DomEvent from './DomEvent';
 import * as Util from '../core/Util';
-import {Point} from '../geometry/Point';
+import { Point } from '../geometry/Point';
 import * as Browser from '../core/Browser';
+
+var renderOnServer = typeof window === 'undefined';
 
 /*
  * @namespace DomUtil
@@ -170,7 +172,7 @@ export function setOpacity(el, value) {
 
 function _setOpacityIE(el, value) {
 	var filter = false,
-	    filterName = 'DXImageTransform.Microsoft.Alpha';
+		filterName = 'DXImageTransform.Microsoft.Alpha';
 
 	// filters collection throws an error if we try to retrieve a filter that doesn't exist
 	try {
@@ -196,7 +198,7 @@ function _setOpacityIE(el, value) {
 // that is a valid style name for an element. If no such name is found,
 // it returns false. Useful for vendor-prefixed styles like `transform`.
 export function testProp(props) {
-	var style = document.documentElement.style;
+	var style = !renderOnServer ? document.documentElement.style : {};
 
 	for (var i = 0; i < props.length; i++) {
 		if (props[i] in style) {
@@ -258,30 +260,32 @@ export function getPosition(el) {
 export var disableTextSelection;
 export var enableTextSelection;
 var _userSelect;
-if ('onselectstart' in document) {
-	disableTextSelection = function () {
-		DomEvent.on(window, 'selectstart', DomEvent.preventDefault);
-	};
-	enableTextSelection = function () {
-		DomEvent.off(window, 'selectstart', DomEvent.preventDefault);
-	};
-} else {
-	var userSelectProperty = testProp(
-		['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
+if (!renderOnServer) {
+	if ('onselectstart' in document) {
+		disableTextSelection = function () {
+			DomEvent.on(window, 'selectstart', DomEvent.preventDefault);
+		};
+		enableTextSelection = function () {
+			DomEvent.off(window, 'selectstart', DomEvent.preventDefault);
+		};
+	} else {
+		var userSelectProperty = testProp(
+			['userSelect', 'WebkitUserSelect', 'OUserSelect', 'MozUserSelect', 'msUserSelect']);
 
-	disableTextSelection = function () {
-		if (userSelectProperty) {
-			var style = document.documentElement.style;
-			_userSelect = style[userSelectProperty];
-			style[userSelectProperty] = 'none';
-		}
-	};
-	enableTextSelection = function () {
-		if (userSelectProperty) {
-			document.documentElement.style[userSelectProperty] = _userSelect;
-			_userSelect = undefined;
-		}
-	};
+		disableTextSelection = function () {
+			if (userSelectProperty) {
+				var style = document.documentElement.style;
+				_userSelect = style[userSelectProperty];
+				style[userSelectProperty] = 'none';
+			}
+		};
+		enableTextSelection = function () {
+			if (userSelectProperty) {
+				document.documentElement.style[userSelectProperty] = _userSelect;
+				_userSelect = undefined;
+			}
+		};
+	}
 }
 
 // @function disableImageDrag()

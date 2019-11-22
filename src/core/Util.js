@@ -4,6 +4,9 @@
  * Various utility functions, used by Leaflet internally.
  */
 
+// No window (SSR)?
+var renderOnServer = typeof window === 'undefined';
+
 export var freeze = Object.freeze;
 Object.freeze = function (obj) { return obj; };
 
@@ -24,7 +27,7 @@ export function extend(dest) {
 // @function create(proto: Object, properties?: Object): Object
 // Compatibility polyfill for [Object.create](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/create)
 export var create = Object.create || (function () {
-	function F() {}
+	function F() { }
 	return function (proto) {
 		F.prototype = proto;
 		return new F();
@@ -102,8 +105,8 @@ export function throttle(fn, time, context) {
 // `range[1]` unless `includeMax` is set to `true`.
 export function wrapNum(x, range, includeMax) {
 	var max = range[1],
-	    min = range[0],
-	    d = max - min;
+		min = range[0],
+		d = max - min;
 	return x === max && includeMax ? x : ((x - min) % d + d) % d + min;
 }
 
@@ -200,7 +203,7 @@ export var emptyImageUrl = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAA
 // inspired by http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 
 function getPrefixed(name) {
-	return window['webkit' + name] || window['moz' + name] || window['ms' + name];
+	return renderOnServer ? null : window['webkit' + name] || window['moz' + name] || window['ms' + name];
 }
 
 var lastTime = 0;
@@ -208,15 +211,15 @@ var lastTime = 0;
 // fallback for IE 7-8
 function timeoutDefer(fn) {
 	var time = +new Date(),
-	    timeToCall = Math.max(0, 16 - (time - lastTime));
+		timeToCall = Math.max(0, 16 - (time - lastTime));
 
 	lastTime = time + timeToCall;
 	return window.setTimeout(fn, timeToCall);
 }
-
-export var requestFn = window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
-export var cancelFn = window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
-		getPrefixed('CancelRequestAnimationFrame') || function (id) { window.clearTimeout(id); };
+function noop() { }
+export var requestFn = renderOnServer ? noop : window.requestAnimationFrame || getPrefixed('RequestAnimationFrame') || timeoutDefer;
+export var cancelFn = renderOnServer ? noop : window.cancelAnimationFrame || getPrefixed('CancelAnimationFrame') ||
+	getPrefixed('CancelRequestAnimationFrame') || function (id) { window.clearTimeout(id); };
 
 // @function requestAnimFrame(fn: Function, context?: Object, immediate?: Boolean): Number
 // Schedules `fn` to be executed when the browser repaints. `fn` is bound to
