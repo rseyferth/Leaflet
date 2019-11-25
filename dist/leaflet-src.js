@@ -1,5 +1,5 @@
 /* @preserve
- * Leaflet 1.6.0+master.0d7113f, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.6.0+master.f2cdc23, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2019 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
@@ -9,7 +9,7 @@
 	(factory((global.L = {})));
 }(this, (function (exports) { 'use strict';
 
-var version = "1.6.0+master.0d7113f5";
+var version = "1.6.0+master.f2cdc236";
 
 /*
  * @namespace Util
@@ -14059,14 +14059,16 @@ exports.rectangle = rectangle;
 exports.Map = Map;
 exports.map = createMap;
 
-var oldL = window.L;
-exports.noConflict = function() {
-	window.L = oldL;
-	return this;
-}
+if (typeof window !== 'undefined') {
+	var oldL = window.L;
+	exports.noConflict = function() {
+		window.L = oldL;
+		return this;
+	}
 
-// Always export us to window global (see #2364)
-window.L = exports;
+	// Always export us to window global (see #2364)
+	window.L = exports;
+}
 
 })));
 //# sourceMappingURL=leaflet-src.js.map

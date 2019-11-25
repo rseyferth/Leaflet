@@ -1,9 +1,9 @@
 /* @preserve
- * Leaflet 1.6.0+master.0d7113f, a JS library for interactive maps. http://leafletjs.com
+ * Leaflet 1.6.0+master.f2cdc23, a JS library for interactive maps. http://leafletjs.com
  * (c) 2010-2019 Vladimir Agafonkin, (c) 2010-2011 CloudMade
  */
 
-var version = "1.6.0+master.0d7113f5";
+var version = "1.6.0+master.f2cdc236";
 
 /*
  * @namespace Util
